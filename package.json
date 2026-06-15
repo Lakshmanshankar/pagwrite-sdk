@@ -1,6 +1,6 @@
 {
   "name": "@lakshmanshankar/pagwrite-astro",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Astro integration for fetching Pagewrite MDX content at build time.",
   "type": "module",
   "packageManager": "pnpm@10.15.1",
