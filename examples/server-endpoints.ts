@@ -1,5 +1,5 @@
 /**
- * Reference implementation for the service endpoints consumed by @pagewrite/astro.
+ * Reference implementation for the service endpoints consumed by @lakshmanshankar/pagwrite-astro.
  * This file is documentation only and is not exported by the package.
  */
 

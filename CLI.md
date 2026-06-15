@@ -4,10 +4,10 @@
 
 ## Installation
 
-The CLI is included with `@pagewrite/astro`:
+The CLI is included with `@lakshmanshankar/pagwrite-astro`:
 
 ```bash
-pnpm add @pagewrite/astro
+pnpm add @lakshmanshankar/pagwrite-astro
 ```
 
 After installation, run it through your package manager:

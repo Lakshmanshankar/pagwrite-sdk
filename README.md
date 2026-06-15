@@ -1,4 +1,4 @@
-# @pagewrite/astro
+# @lakshmanshankar/pagwrite-astro
 
 Astro integration for fetching Pagewrite CMS content at build time and writing it as MDX files into your Astro content directory.
 
@@ -10,7 +10,7 @@ This package is currently focused on the Astro fetch/write integration. The lowe
 Pagewrite CMS                  User's Astro project
 -------------                  --------------------
 Build token secret      --->    REMOTE_MDX_TOKEN
-siteId                  --->    @pagewrite/astro config
+siteId                  --->    @lakshmanshankar/pagwrite-astro config
                                   |
                                   v
                                astro build
@@ -26,7 +26,7 @@ siteId                  --->    @pagewrite/astro config
 ## Installation
 
 ```bash
-pnpm add @pagewrite/astro
+pnpm add @lakshmanshankar/pagwrite-astro
 ```
 
 ## Setup
@@ -42,7 +42,7 @@ Configure the integration before content-related integrations in `astro.config.m
 ```js
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
-import pagewriteAstro from "@pagewrite/astro";
+import pagewriteAstro from "@lakshmanshankar/pagwrite-astro";
 
 export default defineConfig({
   integrations: [
@@ -134,7 +134,7 @@ import {
   fetchStaticFileTree,
   fetchAllFileDocuments,
   stageSiteContent,
-} from "@pagewrite/astro";
+} from "@lakshmanshankar/pagwrite-astro";
 
 await stageSiteContent("your-site-id", process.env.REMOTE_MDX_TOKEN!, "./content/docs");
 ```
@@ -143,7 +143,7 @@ await stageSiteContent("your-site-id", process.env.REMOTE_MDX_TOKEN!, "./content
 
 ## Publishing
 
-Package publishing is handled by GitHub Actions. Configure an `NPM_TOKEN` repository secret with permission to publish `@pagewrite/astro`, then publish a GitHub release to run the npm publish workflow.
+Package publishing is handled by GitHub Actions. Configure an `NPM_TOKEN` repository secret with permission to publish `@lakshmanshankar/pagwrite-astro`, then publish a GitHub release to run the npm publish workflow.
 
 The workflow installs dependencies with pnpm, runs typecheck, tests, and build, then publishes to the npm registry with provenance enabled. It can also be started manually from the Actions tab with `workflow_dispatch`.
 

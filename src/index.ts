@@ -34,7 +34,7 @@ export default function pagewriteAstro(options: RemoteMdxOptions): AstroIntegrat
 
 export function remoteMdx(options: RemoteMdxOptions): AstroIntegration {
   return {
-    name: "@pagewrite/astro",
+    name: "@lakshmanshankar/pagwrite-astro",
     hooks: {
       "astro:config:setup": async ({ config, logger }) => {
         const integrationLogger = createLogger(logger);
