@@ -1,0 +1,47 @@
+{
+  "name": "@pagewrite/astro",
+  "version": "0.1.0",
+  "description": "Astro integration for fetching Pagewrite MDX content at build time.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CLI.md"
+  ],
+  "scripts": {
+    "build": "pnpm run clean && tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "node scripts/clean-dist.mjs"
+  },
+  "keywords": [
+    "astro",
+    "mdx",
+    "pagewrite"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "astro": ">=4.0.0 || >=5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "astro": "^5.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "tsx": "^4.19.0"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "bin": {
+    "pagewrite-content": "./dist/cli.js"
+  }
+}
