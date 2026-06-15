@@ -141,6 +141,12 @@ await stageSiteContent("your-site-id", process.env.REMOTE_MDX_TOKEN!, "./content
 
 `stageSiteContent` fetches the static file tree and paginated file documents, converts file tree paths into safe MDX file paths, upserts `title` and `slug` frontmatter, and writes files to the target directory.
 
+## Publishing
+
+Package publishing is handled by GitHub Actions. Configure an `NPM_TOKEN` repository secret with permission to publish `@pagewrite/astro`, then publish a GitHub release to run the npm publish workflow.
+
+The workflow installs dependencies with pnpm, runs typecheck, tests, and build, then publishes to the npm registry with provenance enabled. It can also be started manually from the Actions tab with `workflow_dispatch`.
+
 ## Security Notes
 
 - Never commit build tokens.
