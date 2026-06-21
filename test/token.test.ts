@@ -36,4 +36,26 @@ describe("resolveToken", () => {
 
     expect(() => resolveToken({ siteId: "site" })).toThrow("Build token not found");
   });
+
+  it("uses a token passed directly as a string", () => {
+    process.env.REMOTE_MDX_TOKEN = "env-token";
+
+    expect(resolveToken({ siteId: "site" }, "passed-token")).toBe("passed-token");
+  });
+
+  it("uses the token from a passed env object", () => {
+    process.env.REMOTE_MDX_TOKEN = "env-token";
+
+    expect(
+      resolveToken({ siteId: "site" }, { REMOTE_MDX_TOKEN: "passed-env-token" })
+    ).toBe("passed-env-token");
+  });
+
+  it("falls back to process.env if the passed env object does not contain the token", () => {
+    process.env.REMOTE_MDX_TOKEN = "fallback-env-token";
+
+    expect(
+      resolveToken({ siteId: "site" }, {})
+    ).toBe("fallback-env-token");
+  });
 });

@@ -18,13 +18,11 @@ pnpm pagewrite-content --help
 
 ## Authentication
 
-By default, the CLI reads the build token from `REMOTE_MDX_TOKEN`:
+Pass the build token directly using the `--token` option:
 
 ```bash
-REMOTE_MDX_TOKEN=rmx_live_xxxxxxxxxxxx
+pagewrite-content fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx
 ```
-
-You can also pass a token directly with `--token`, or point to another environment variable with `--token-env`.
 
 ## Usage
 
@@ -45,9 +43,7 @@ pagewrite-content fetch --site-id your-site-id --out src/content/docs
 | `--site-id <id>` | required | Pagewrite site id to fetch. |
 | `--out <dir>` | `src/content/docs` | Output directory for generated MDX files. |
 | `--output-dir <dir>` | `src/content/docs` | Alias for `--out`. |
-| `--token <token>` | env lookup | Build token value. |
-| `--token-env <name>` | `REMOTE_MDX_TOKEN` | Environment variable name that contains the build token. |
-| `--token-env-var <name>` | `REMOTE_MDX_TOKEN` | Alias for `--token-env`. |
+| `--token <token>` | required | Build token value. |
 | `--clean` | `false` | Remove the output directory before writing files. |
 | `--dry-run` | `false` | Fetch and validate content, then remove temporary output. |
 | `--page-size <number>` | `100` | File document page size. |
@@ -74,12 +70,6 @@ Clean the target directory before writing fresh content:
 pagewrite-content fetch --site-id your-site-id --out src/content/docs --clean
 ```
 
-Use a custom token environment variable:
-
-```bash
-PAGEWRITE_BUILD_TOKEN=rmx_live_xxxxxxxxxxxx \
-  pagewrite-content fetch --site-id your-site-id --token-env PAGEWRITE_BUILD_TOKEN
-```
 
 Validate remote content without keeping files on disk:
 
@@ -94,14 +84,14 @@ Run the CLI before your framework build:
 ```json
 {
   "scripts": {
-    "content:fetch": "pagewrite-content fetch --site-id $PAGEWRITE_SITE_ID --out src/content/docs --clean",
+    "content:fetch": "pagewrite-content fetch --site-id $PAGEWRITE_SITE_ID --token $PAGEWRITE_BUILD_TOKEN --out src/content/docs --clean",
     "prebuild": "pnpm content:fetch",
     "build": "astro build"
   }
 }
 ```
 
-Make sure `REMOTE_MDX_TOKEN` and `PAGEWRITE_SITE_ID` are configured as CI secrets or environment variables.
+Make sure `PAGEWRITE_BUILD_TOKEN` and `PAGEWRITE_SITE_ID` are configured as CI secrets or environment variables.
 
 ## Notes
 

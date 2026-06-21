@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import type { AstroIntegration } from "astro";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadEnv } from "vite";
 import { stageSiteContent } from "./client.js";
 import { resolveToken } from "./token.js";
 import type { RemoteMdxLogger, RemoteMdxOptions } from "./types.js";
@@ -36,10 +37,11 @@ export function remoteMdx(options: RemoteMdxOptions): AstroIntegration {
   return {
     name: "@lakshmanshankar/pagwrite-astro",
     hooks: {
-      "astro:config:setup": async ({ config, logger }) => {
+      "astro:config:setup": async ({ config, command, logger }) => {
         const integrationLogger = createLogger(logger);
-        const token = resolveToken(options);
         const root = fileURLToPath(config.root);
+        const env = loadEnv(command === "dev" ? "development" : "production", root, "");
+        const token = resolveToken(options, env);
         const outputDir = path.resolve(root, options.outputDir ?? "src/content/docs");
 
         if (options.clean ?? false) {
