@@ -9,8 +9,7 @@ This package is currently focused on the Astro fetch/write integration. The lowe
 ```text
 Pagewrite CMS                  User's Astro project
 -------------                  --------------------
-Build token secret      --->    REMOTE_MDX_TOKEN
-siteId                  --->    @lakshmanshankar/pagwrite-astro config
+siteId, token           --->    @lakshmanshankar/pagwrite-astro config
                                   |
                                   v
                                astro build
@@ -31,12 +30,6 @@ pnpm add @lakshmanshankar/pagwrite-astro
 
 ## Setup
 
-Set a build token in your local or CI environment:
-
-```bash
-REMOTE_MDX_TOKEN=rmx_live_xxxxxxxxxxxx
-```
-
 Configure the integration before content-related integrations in `astro.config.mjs`:
 
 ```js
@@ -48,6 +41,7 @@ export default defineConfig({
   integrations: [
     pagewriteAstro({
       siteId: "your-site-id",
+      token: "rmx_live_xxxxxxxxxxxx", // Your Pagewrite build token
     }),
     mdx(),
   ],
@@ -59,8 +53,7 @@ export default defineConfig({
 | Option | Type | Default | Description |
 | ------ | ---- | ------- | ----------- |
 | `siteId` | `string` | required | Pagewrite site to fetch and stage. |
-| `token` | `string` | none | Build token value. Takes priority over env lookup. |
-| `tokenEnvVar` | `string` | `REMOTE_MDX_TOKEN` | Environment variable name to read the token from. |
+| `token` | `string` | required | Build token value. |
 | `outputDir` | `string` | `src/content/docs` | Directory where MDX files are written, relative to the Astro project root. |
 | `clean` | `boolean` | `false` | Remove `outputDir` before writing fetched files. |
 | `verbose` | `boolean` | `false` | Reserved for more detailed sync logging. |
@@ -85,14 +78,6 @@ pagewriteAstro({
 });
 ```
 
-### Custom Token Env Var
-
-```js
-pagewriteAstro({
-  siteId: "your-site-id",
-  tokenEnvVar: "PAGEWRITE_BUILD_TOKEN",
-});
-```
 
 
 ## Ad-Hoc Fetching
@@ -100,7 +85,7 @@ pagewriteAstro({
 You can fetch content outside the Astro build by running the CLI in a predeploy step, CI job, or local verification command:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --out src/content/docs
+pagewrite-content fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx --out src/content/docs
 ```
 
 For CI, wire it before your framework build:
@@ -108,7 +93,7 @@ For CI, wire it before your framework build:
 ```json
 {
   "scripts": {
-    "content:fetch": "pagewrite-content fetch --site-id $PAGEWRITE_SITE_ID --out src/content/docs --clean",
+    "content:fetch": "pagewrite-content fetch --site-id $PAGEWRITE_SITE_ID --token $PAGEWRITE_BUILD_TOKEN --out src/content/docs --clean",
     "prebuild": "pnpm content:fetch",
     "build": "astro build"
   }
@@ -118,10 +103,10 @@ For CI, wire it before your framework build:
 To verify the remote content without keeping files on disk, use dry run:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --dry-run
+pagewrite-content fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx --dry-run
 ```
 
-CLI options mirror the integration defaults: `--token`, `--token-env`, `--clean`, `--page-size`, and `--timeout-ms` are available.
+CLI options mirror the integration defaults: `--token`, `--clean`, `--page-size`, and `--timeout-ms` are available.
 
 See [CLI.md](./CLI.md) for the full command reference and CI examples.
 
@@ -136,7 +121,7 @@ import {
   stageSiteContent,
 } from "@lakshmanshankar/pagwrite-astro";
 
-await stageSiteContent("your-site-id", process.env.REMOTE_MDX_TOKEN!, "./content/docs");
+await stageSiteContent("your-site-id", "rmx_live_xxxxxxxxxxxx", "./content/docs");
 ```
 
 `stageSiteContent` fetches the static file tree and paginated file documents, converts file tree paths into safe MDX file paths, upserts `title` and `slug` frontmatter, and writes files to the target directory.
