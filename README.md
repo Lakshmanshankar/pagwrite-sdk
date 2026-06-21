@@ -37,11 +37,14 @@ import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import pagewriteAstro from "@lakshmanshankar/pagwrite-astro";
 
+import { loadEnv } from "vite";
+const env = loadEnv(process.env.NODE_ENV!, process.cwd(), "");
+
 export default defineConfig({
   integrations: [
     pagewriteAstro({
       siteId: "your-site-id",
-      token: "rmx_live_xxxxxxxxxxxx", // Your Pagewrite build token
+      token: env.PAGEWRITE_BUILD_TOKEN, // or Pagewrite build token
     }),
     mdx(),
   ],
