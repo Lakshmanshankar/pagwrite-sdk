@@ -9,6 +9,7 @@ import type { RemoteMdxLogger, RemoteMdxOptions } from "./types.js";
 
 export type {
   FileDocument,
+  PageMapNode,
   PageTreeFileNode,
   PageTreeFolderNode,
   PageTreeNode,
@@ -27,7 +28,7 @@ export {
   stageSiteContent,
 } from "./client.js";
 export { resolveToken } from "./token.js";
-export { flattenFileNodes, safeRelativePath, toSegment, toSlug, upsertFrontmatter } from "./utils.js";
+export { flattenFileNodes, generatePageMap, safeRelativePath, toSegment, toSlug, upsertFrontmatter } from "./utils.js";
 
 export default function pagewriteAstro(options: RemoteMdxOptions): AstroIntegration {
   return remoteMdx(options);

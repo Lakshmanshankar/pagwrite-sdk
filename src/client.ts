@@ -10,6 +10,7 @@ import type {
 } from "./types.js";
 import {
   flattenFileNodes,
+  generatePageMap,
   safeRelativePath,
   toSegment,
   toSlug,
@@ -190,6 +191,10 @@ export async function stageSiteContent(
       absolutePath,
     });
   }
+
+  const pagemap = generatePageMap(sitePages.pages);
+  const pagemapPath = path.join(contentDir, "pagemap.json");
+  await writeTextFile(pagemapPath, JSON.stringify(pagemap, null, 2));
 
   return {
     sitePages,

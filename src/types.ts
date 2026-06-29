@@ -36,6 +36,13 @@ export interface PageTreeFileNode {
 
 export type PageTreeNode = PageTreeFolderNode | PageTreeFileNode;
 
+export interface PageMapNode {
+  id: string;
+  title: string;
+  slug: string;
+  children?: PageMapNode[];
+}
+
 export interface SitePages {
   siteId: string;
   rootFolderId: string;
