@@ -135,6 +135,19 @@ describe("Pagewrite content fetching", () => {
     await expect(fs.readFile(path.join(tmpDir, "hello-world.mdx"), "utf8")).resolves.toBe(
       '---\ntitle: "Hello World"\nslug: "hello-world"\n---\n\n# Body',
     );
+    await expect(fs.readFile(path.join(tmpDir, "pagemap.json"), "utf8")).resolves.toBe(
+      JSON.stringify(
+        [
+          {
+            id: "file-1",
+            title: "Hello World",
+            slug: "hello-world",
+          },
+        ],
+        null,
+        2,
+      ),
+    );
   });
 
   it("throws useful errors for failed requests", async () => {
