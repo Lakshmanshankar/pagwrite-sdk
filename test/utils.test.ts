@@ -1,7 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { flattenFileNodes, safeRelativePath, toSegment, toSlug, upsertFrontmatter } from "../src/utils.js";
+import { flattenFileNodes, generatePageMap, safeRelativePath, toSegment, toSlug, upsertFrontmatter } from "../src/utils.js";
 
 describe("content utils", () => {
+  it("generates page map", () => {
+    expect(
+      generatePageMap([
+        {
+          id: "folder-1",
+          type: "folder",
+          title: "Docs",
+          path: "docs",
+          children: [
+            {
+              id: "file-1",
+              type: "file",
+              title: "Getting Started",
+              path: "docs/getting-started",
+              storageFile: "",
+            },
+          ],
+        },
+      ]),
+    ).toEqual([
+      {
+        id: "folder-1",
+        title: "Docs",
+        slug: "docs",
+        children: [
+          {
+            id: "file-1",
+            title: "Getting Started",
+            slug: "docs/getting-started",
+          },
+        ],
+      },
+    ]);
+  });
+
   it("flattens file nodes", () => {
     expect(
       flattenFileNodes([
