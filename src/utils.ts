@@ -71,18 +71,24 @@ export function toSlug(relativePath: string): string {
     .join("/");
 }
 
-export function upsertFrontmatter(content: string, title: string, slug: string): string {
+export function upsertFrontmatter(content: string, title: string, slug: string, id?: string): string {
   const normalizedContent = content.replace(/^\uFEFF/, "");
   const titleLine = `title: ${quoteYamlString(title)}`;
   const slugLine = `slug: ${quoteYamlString(slug)}`;
+  const idLine = id ? `id: ${quoteYamlString(id)}` : "";
+
+  const lines = [titleLine, slugLine];
+  if (idLine) {
+    lines.push(idLine);
+  }
 
   if (!normalizedContent.startsWith("---\n")) {
-    return `---\n${titleLine}\n${slugLine}\n---\n\n${normalizedContent}`;
+    return `---\n${lines.join("\n")}\n---\n\n${normalizedContent}`;
   }
 
   const endIndex = normalizedContent.indexOf("\n---", 4);
   if (endIndex === -1) {
-    return `---\n${titleLine}\n${slugLine}\n---\n\n${normalizedContent}`;
+    return `---\n${lines.join("\n")}\n---\n\n${normalizedContent}`;
   }
 
   const existingFrontmatter = normalizedContent.slice(4, endIndex);
@@ -90,9 +96,9 @@ export function upsertFrontmatter(content: string, title: string, slug: string):
   const body = normalizedContent.slice(bodyStart);
   const remainingLines = existingFrontmatter
     .split("\n")
-    .filter((line) => !/^title\s*:/.test(line) && !/^slug\s*:/.test(line))
+    .filter((line) => !/^title\s*:/.test(line) && !/^slug\s*:/.test(line) && (id ? !/^id\s*:/.test(line) : true))
     .filter((line, index, lines) => line.trim() !== "" || index < lines.length - 1);
-  const nextFrontmatter = [titleLine, slugLine, ...remainingLines].join("\n").trim();
+  const nextFrontmatter = [...lines, ...remainingLines].join("\n").trim();
 
   return `---\n${nextFrontmatter}\n---${body.startsWith("\n") ? "" : "\n"}${body}`;
 }
