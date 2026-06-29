@@ -180,7 +180,7 @@ export async function stageSiteContent(
     }
 
     const slug = toSlug(normalizedPath);
-    const contentWithFrontmatter = upsertFrontmatter(document?.mdxString ?? "", fileNode.title, slug);
+    const contentWithFrontmatter = upsertFrontmatter(document?.mdxString ?? "", fileNode.title, slug, fileNode.id);
 
     await ensureDir(path.dirname(absolutePath));
     await writeTextFile(absolutePath, contentWithFrontmatter);

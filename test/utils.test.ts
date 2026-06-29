@@ -66,11 +66,17 @@ describe("content utils", () => {
     expect(upsertFrontmatter("# Body", "Hello", "hello")).toBe(
       '---\ntitle: "Hello"\nslug: "hello"\n---\n\n# Body',
     );
+    expect(upsertFrontmatter("# Body", "Hello", "hello", "my-id")).toBe(
+      '---\ntitle: "Hello"\nslug: "hello"\nid: "my-id"\n---\n\n# Body',
+    );
   });
 
   it("updates existing frontmatter", () => {
     expect(upsertFrontmatter('---\ntitle: "Old"\ndraft: true\n---\n# Body', "New", "new")).toBe(
       '---\ntitle: "New"\nslug: "new"\ndraft: true\n---\n# Body',
+    );
+    expect(upsertFrontmatter('---\ntitle: "Old"\nslug: "old"\nid: "old-id"\ndraft: true\n---\n# Body', "New", "new", "new-id")).toBe(
+      '---\ntitle: "New"\nslug: "new"\nid: "new-id"\ndraft: true\n---\n# Body',
     );
   });
 });
