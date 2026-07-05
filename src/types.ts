@@ -14,6 +14,10 @@ export interface StaticTreeChild {
   children?: StaticTreeChild[];
   databaseType?: string;
   lang?: string;
+  description?: string;
+  status?: string;
+  metaKeywords?: string[];
+  datePublished?: string;
 }
 
 export interface PageTreeFolderNode {
@@ -32,6 +36,10 @@ export interface PageTreeFileNode {
   title: string;
   path: string;
   storageFile: string;
+  description?: string;
+  status?: string;
+  metaKeywords?: string[];
+  datePublished?: string;
 }
 
 export type PageTreeNode = PageTreeFolderNode | PageTreeFileNode;
