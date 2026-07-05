@@ -71,16 +71,36 @@ export function toSlug(relativePath: string): string {
     .join("/");
 }
 
-export function upsertFrontmatter(content: string, title: string, slug: string, id?: string): string {
-  const normalizedContent = content.replace(/^\uFEFF/, "");
-  const titleLine = `title: ${quoteYamlString(title)}`;
-  const slugLine = `slug: ${quoteYamlString(slug)}`;
-  const idLine = id ? `id: ${quoteYamlString(id)}` : "";
+export interface FrontmatterOptions {
+  description?: string;
+  status?: string;
+  metaKeywords?: string[];
+  datePublished?: string;
+}
 
-  const lines = [titleLine, slugLine];
-  if (idLine) {
-    lines.push(idLine);
+export function upsertFrontmatter(
+  content: string,
+  title: string,
+  slug: string,
+  id?: string,
+  options?: FrontmatterOptions
+): string {
+  const normalizedContent = content.replace(/^\uFEFF/, "");
+  
+  const lines = [
+    `title: ${quoteYamlString(title)}`,
+    `slug: ${quoteYamlString(slug)}`,
+  ];
+  if (id) lines.push(`id: ${quoteYamlString(id)}`);
+  if (options?.description) lines.push(`description: ${quoteYamlString(options.description)}`);
+  if (options?.status) lines.push(`status: ${quoteYamlString(options.status)}`);
+  if (options?.metaKeywords && options.metaKeywords.length > 0) {
+    lines.push(`metaKeywords:`);
+    for (const kw of options.metaKeywords) {
+      lines.push(`  - ${quoteYamlString(kw)}`);
+    }
   }
+  if (options?.datePublished) lines.push(`datePublished: ${quoteYamlString(options.datePublished)}`);
 
   if (!normalizedContent.startsWith("---\n")) {
     return `---\n${lines.join("\n")}\n---\n\n${normalizedContent}`;
@@ -94,11 +114,39 @@ export function upsertFrontmatter(content: string, title: string, slug: string, 
   const existingFrontmatter = normalizedContent.slice(4, endIndex);
   const bodyStart = normalizedContent.startsWith("\n", endIndex + 4) ? endIndex + 5 : endIndex + 4;
   const body = normalizedContent.slice(bodyStart);
-  const remainingLines = existingFrontmatter
-    .split("\n")
-    .filter((line) => !/^title\s*:/.test(line) && !/^slug\s*:/.test(line) && (id ? !/^id\s*:/.test(line) : true))
-    .filter((line, index, lines) => line.trim() !== "" || index < lines.length - 1);
-  const nextFrontmatter = [...lines, ...remainingLines].join("\n").trim();
+  
+  const existingLines = existingFrontmatter.split("\n");
+  const remainingLines: string[] = [];
+  
+  const keysToRemove = ["title", "slug", "id", "description", "status", "metaKeywords", "datePublished"];
+  let skipMode = false;
+
+  for (const line of existingLines) {
+    const match = line.match(/^([a-zA-Z0-9_-]+)\s*:/);
+    if (match) {
+      const key = match[1];
+      if (keysToRemove.includes(key)) {
+        skipMode = true;
+        continue;
+      } else {
+        skipMode = false;
+      }
+    } else if (skipMode) {
+      const isIndented = line.trim() === "" || line.startsWith(" ") || line.startsWith("\t") || line.startsWith("-");
+      if (isIndented) {
+        continue;
+      } else {
+        skipMode = false;
+      }
+    }
+
+    if (!skipMode) {
+      remainingLines.push(line);
+    }
+  }
+
+  const cleanedRemainingLines = remainingLines.filter((line, index, arr) => line.trim() !== "" || index < arr.length - 1);
+  const nextFrontmatter = [...lines, ...cleanedRemainingLines].join("\n").trim();
 
   return `---\n${nextFrontmatter}\n---${body.startsWith("\n") ? "" : "\n"}${body}`;
 }

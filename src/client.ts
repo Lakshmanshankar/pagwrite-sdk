@@ -109,6 +109,10 @@ export async function fetchStaticFileTree(
         title,
         path: childPath,
         storageFile: "",
+        description: child.description,
+        status: child.status,
+        metaKeywords: child.metaKeywords,
+        datePublished: child.datePublished,
       };
     });
 
@@ -180,7 +184,12 @@ export async function stageSiteContent(
     }
 
     const slug = toSlug(normalizedPath);
-    const contentWithFrontmatter = upsertFrontmatter(document?.mdxString ?? "", fileNode.title, slug, fileNode.id);
+    const contentWithFrontmatter = upsertFrontmatter(document?.mdxString ?? "", fileNode.title, slug, fileNode.id, {
+      description: (document?.description as string) ?? fileNode.description,
+      status: (document?.status as string) ?? fileNode.status,
+      metaKeywords: (document?.metaKeywords as string[]) ?? fileNode.metaKeywords,
+      datePublished: (document?.datePublished as string) ?? fileNode.datePublished,
+    });
 
     await ensureDir(path.dirname(absolutePath));
     await writeTextFile(absolutePath, contentWithFrontmatter);
