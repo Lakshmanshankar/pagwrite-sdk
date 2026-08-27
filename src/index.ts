@@ -21,8 +21,9 @@ export type {
 
 export {
   DEFAULT_PAGE_SIZE,
-  PAGINATED_FILE_DOCUMENTS_URL,
-  STATIC_FILE_TREE_URL,
+  PAGINATED_FILE_DOCUMENTS_ENDPOINT,
+  STATIC_FILE_TREE_ENDPOINT,
+  SITE_SCHEMAS_ENDPOINT,
   fetchAllFileDocuments,
   fetchStaticFileTree,
   stageSiteContent,
