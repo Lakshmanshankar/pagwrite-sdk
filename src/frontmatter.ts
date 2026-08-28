@@ -37,13 +37,32 @@ export function buildMdxWithSchema(
   const frontmatter: Record<string, unknown> = {};
   const rawMetadata = document.metadata ?? {};
 
+  // Include standard static fields from metadata
+  const staticFields = [
+    "title",
+    "id",
+    "datePublished",
+    "metaDescription",
+    "pageStatus",
+    "slug",
+    "metaKeywords",
+    "metaTitle"
+  ];
+
+  for (const key of staticFields) {
+    if (key in rawMetadata && rawMetadata[key] !== undefined) {
+      frontmatter[key] = rawMetadata[key];
+    }
+  }
+
   // Process schema fields
   for (const field of schema.fields) {
     const camelKey = toCamelCase(field.name);
     
-    if (camelKey in rawMetadata) {
+    // Look up by field.id for custom schema properties
+    if (field.id in rawMetadata) {
       // Type coercion if necessary
-      let value = rawMetadata[camelKey];
+      let value = rawMetadata[field.id];
       // Basic coercion placeholder (can be expanded based on exact field types)
       if (field.type === "date" || field.type === "date_range") {
         if (value && typeof value === "string") {
@@ -58,10 +77,10 @@ export function buildMdxWithSchema(
     }
   }
 
-  // Merge system-level metadata
-  frontmatter.title = fallbackTitle;
-  frontmatter.slug = slug;
-  if (document.id) {
+  // Merge system-level metadata fallback
+  frontmatter.title = frontmatter.title ?? fallbackTitle;
+  frontmatter.slug = frontmatter.slug ?? slug;
+  if (!frontmatter.id && document.id) {
     frontmatter.id = document.id;
   }
 

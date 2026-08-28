@@ -168,14 +168,12 @@ export async function fetchAllFileDocuments(
       "Failed to fetch paginated file documents",
       options,
     );
-
     for (const document of responseData.documents ?? []) {
       documents.set(document.id, document);
     }
 
     pageToken = responseData.nextPageToken ?? null;
   } while (pageToken);
-
   return documents;
 }
 
@@ -190,6 +188,7 @@ export async function stageSiteContent(
     fetchAllFileDocuments(siteId, token, options),
     fetchSiteSchemas(siteId, token, options),
   ]);
+
   const fileNodes = flattenFileNodes(sitePages.pages);
 
   await ensureDir(contentDir);

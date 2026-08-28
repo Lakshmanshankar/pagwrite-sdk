@@ -8,6 +8,7 @@ export interface RemoteMdxOptions {
 }
 
 export interface SchemaField {
+  id: string;
   name: string;
   type: string;
   required?: boolean;
