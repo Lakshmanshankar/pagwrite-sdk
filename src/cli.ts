@@ -19,7 +19,7 @@ interface CliOptions {
 }
 
 const HELP = `Usage:
-  pagewrite-content fetch --site-id <siteId> [options]
+  pagewrite-astro fetch --site-id <siteId> [options]
 
 Options:
   --site-id <id>          Pagewrite site id to fetch. Required.
@@ -52,7 +52,7 @@ async function main(argv: string[]): Promise<void> {
   });
   const outputDir = path.resolve(process.cwd(), options.outDir);
   const targetDir = options.dryRun
-    ? await fs.mkdtemp(path.join(await fs.realpath("/tmp"), "pagewrite-content-"))
+    ? await fs.mkdtemp(path.join(await fs.realpath("/tmp"), "pagewrite-astro-"))
     : outputDir;
 
   try {
@@ -163,14 +163,14 @@ function parsePositiveInteger(value: string, option: string): number {
 
 function createConsoleLogger(): Pick<RemoteMdxLogger, "info" | "warn" | "error"> {
   return {
-    info: (message) => console.info(`[pagewrite-content] ${message}`),
-    warn: (message) => console.warn(`[pagewrite-content] ${message}`),
-    error: (message) => console.error(`[pagewrite-content] ${message}`),
+    info: (message) => console.info(`[pagewrite-astro] ${message}`),
+    warn: (message) => console.warn(`[pagewrite-astro] ${message}`),
+    error: (message) => console.error(`[pagewrite-astro] ${message}`),
   };
 }
 
 main(process.argv.slice(2)).catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`[pagewrite-content] ${message}`);
+  console.error(`[pagewrite-astro] ${message}`);
   process.exitCode = 1;
 });

@@ -4,14 +4,14 @@ import path from "node:path";
 
 const cliPath = path.resolve("src/cli.ts");
 
-describe("pagewrite-content CLI", () => {
+describe("pagewrite-astro CLI", () => {
   it("prints help", () => {
     const result = spawnSync(process.execPath, ["--import", "tsx", cliPath, "--help"], {
       encoding: "utf8",
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("pagewrite-content fetch --site-id <siteId>");
+    expect(result.stdout).toContain("pagewrite-astro fetch --site-id <siteId>");
   });
 
   it("requires site id", () => {

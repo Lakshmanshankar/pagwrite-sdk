@@ -45,7 +45,7 @@
     "node": ">=18.17.0"
   },
   "bin": {
-    "pagewrite-content": "./dist/cli.js"
+    "pagewrite-astro": "./dist/cli.js"
   },
   "dependencies": {
     "yaml": "^2.9.0"
