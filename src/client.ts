@@ -26,7 +26,7 @@ export const DEFAULT_PAGE_SIZE = 100;
 
 export interface FetchSiteContentOptions {
   fetchImpl?: typeof fetch;
-  logger?: Pick<RemoteMdxLogger, "warn">;
+  logger?: Pick<RemoteMdxLogger, "info" | "warn" | "error">;
   pageSize?: number;
   timeoutMs?: number;
 }
@@ -211,6 +211,7 @@ export async function stageSiteContent(
   };
   mapSchemas(sitePages.pages, sitePages.rootSchemaId);
 
+  let skippedCount = 0;
   const files: StagedSiteContent["files"] = [];
   for (const fileNode of fileNodes) {
     const normalizedPath = safeRelativePath(fileNode.path);
@@ -220,6 +221,11 @@ export async function stageSiteContent(
 
     if (!document) {
       options.logger?.warn(`Document not found for file node: ${fileNode.id} (${fileNode.title})`);
+      continue;
+    }
+
+    if (document.metadata?.pageStatus !== "published") {
+      skippedCount++;
       continue;
     }
 
@@ -242,6 +248,10 @@ export async function stageSiteContent(
       relPath,
       absolutePath,
     });
+  }
+
+  if (skippedCount > 0) {
+    options.logger?.info?.(`Skipped ${skippedCount} non-published page(s).`);
   }
 
   const pagemap = generatePageMap(sitePages.pages);

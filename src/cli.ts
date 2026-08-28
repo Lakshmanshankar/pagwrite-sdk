@@ -161,9 +161,11 @@ function parsePositiveInteger(value: string, option: string): number {
   return parsed;
 }
 
-function createConsoleLogger(): Pick<RemoteMdxLogger, "warn"> {
+function createConsoleLogger(): Pick<RemoteMdxLogger, "info" | "warn" | "error"> {
   return {
+    info: (message) => console.info(`[pagewrite-content] ${message}`),
     warn: (message) => console.warn(`[pagewrite-content] ${message}`),
+    error: (message) => console.error(`[pagewrite-content] ${message}`),
   };
 }
 
