@@ -126,7 +126,7 @@ describe("Pagewrite content fetching", () => {
         return jsonResponse({ schemas: [] });
       }
 
-      return jsonResponse({ documents: [{ id: "file-1", mdxString: "# Body" }] });
+      return jsonResponse({ documents: [{ id: "file-1", mdxString: "# Body", metadata: { pageStatus: "published" } }] });
     }) as unknown as typeof fetch;
 
     const result = await stageSiteContent("site-1", "token", tmpDir, { fetchImpl });
