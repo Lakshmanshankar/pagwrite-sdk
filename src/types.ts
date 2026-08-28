@@ -7,6 +7,20 @@ export interface RemoteMdxOptions {
   verbose?: boolean;
 }
 
+export interface SchemaField {
+  id: string;
+  name: string;
+  type: string;
+  required?: boolean;
+  [key: string]: unknown;
+}
+
+export interface SiteSchema {
+  id: string;
+  name?: string;
+  fields: SchemaField[];
+}
+
 export interface StaticTreeChild {
   id: string;
   title?: string;
@@ -14,6 +28,7 @@ export interface StaticTreeChild {
   children?: StaticTreeChild[];
   databaseType?: string;
   lang?: string;
+  schemaId?: string;
 }
 
 export interface PageTreeFolderNode {
@@ -23,6 +38,7 @@ export interface PageTreeFolderNode {
   path: string;
   databaseType?: string;
   lang?: string;
+  schemaId?: string;
   children: PageTreeNode[];
 }
 
@@ -32,6 +48,7 @@ export interface PageTreeFileNode {
   title: string;
   path: string;
   storageFile: string;
+  parentFolderId?: string;
 }
 
 export type PageTreeNode = PageTreeFolderNode | PageTreeFileNode;
@@ -46,6 +63,7 @@ export interface PageMapNode {
 export interface SitePages {
   siteId: string;
   rootFolderId: string;
+  rootSchemaId?: string;
   pages: PageTreeNode[];
   tags: Record<string, unknown>;
 }
@@ -53,6 +71,8 @@ export interface SitePages {
 export interface FileDocument {
   id: string;
   mdxString?: string;
+  parentFolderId?: string;
+  metadata?: Record<string, unknown>;
   [key: string]: unknown;
 }
 

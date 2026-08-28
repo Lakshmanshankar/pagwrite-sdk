@@ -3,8 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  PAGINATED_FILE_DOCUMENTS_URL,
-  STATIC_FILE_TREE_URL,
+  PAGINATED_FILE_DOCUMENTS_ENDPOINT,
+  STATIC_FILE_TREE_ENDPOINT,
   fetchAllFileDocuments,
   fetchStaticFileTree,
   stageSiteContent,
@@ -57,6 +57,7 @@ describe("Pagewrite content fetching", () => {
         path: "docs",
         databaseType: undefined,
         lang: undefined,
+        schemaId: undefined,
         children: [
           {
             id: "file-1",
@@ -64,12 +65,13 @@ describe("Pagewrite content fetching", () => {
             title: "Getting Started",
             path: "docs/getting-started",
             storageFile: "",
+            parentFolderId: "folder-1",
           },
         ],
       },
     ]);
     expect(fetchImpl).toHaveBeenCalledWith(
-      STATIC_FILE_TREE_URL,
+      STATIC_FILE_TREE_ENDPOINT,
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ siteId: "site-1" }),
@@ -94,14 +96,14 @@ describe("Pagewrite content fetching", () => {
     expect([...result.keys()]).toEqual(["file-1", "file-2"]);
     expect(fetchImpl).toHaveBeenNthCalledWith(
       1,
-      PAGINATED_FILE_DOCUMENTS_URL,
+      PAGINATED_FILE_DOCUMENTS_ENDPOINT,
       expect.objectContaining({
         body: JSON.stringify({ siteId: "site-1", pageSize: 10, pageToken: null }),
       }),
     );
     expect(fetchImpl).toHaveBeenNthCalledWith(
       2,
-      PAGINATED_FILE_DOCUMENTS_URL,
+      PAGINATED_FILE_DOCUMENTS_ENDPOINT,
       expect.objectContaining({
         body: JSON.stringify({ siteId: "site-1", pageSize: 10, pageToken: "next" }),
       }),
@@ -110,7 +112,7 @@ describe("Pagewrite content fetching", () => {
 
   it("stages site content by writing MDX files with frontmatter", async () => {
     const fetchImpl = vi.fn(async (url) => {
-      if (url === STATIC_FILE_TREE_URL) {
+      if (url === STATIC_FILE_TREE_ENDPOINT) {
         return jsonResponse({
           root: {
             id: "root",
@@ -120,7 +122,11 @@ describe("Pagewrite content fetching", () => {
         });
       }
 
-      return jsonResponse({ documents: [{ id: "file-1", mdxString: "# Body" }] });
+      if (url.includes("getSiteSchemas")) {
+        return jsonResponse({ schemas: [] });
+      }
+
+      return jsonResponse({ documents: [{ id: "file-1", mdxString: "# Body", metadata: { pageStatus: "published" } }] });
     }) as unknown as typeof fetch;
 
     const result = await stageSiteContent("site-1", "token", tmpDir, { fetchImpl });

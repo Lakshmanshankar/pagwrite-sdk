@@ -1,6 +1,6 @@
 # Pagewrite Content CLI
 
-`pagewrite-content` fetches Pagewrite CMS content without running an Astro build. Use it in CI, predeploy steps, or local checks when you want MDX files written into an Astro content directory ahead of time.
+`pagewrite-astro` fetches Pagewrite CMS content without running an Astro build. Use it in CI, predeploy steps, or local checks when you want MDX files written into an Astro content directory ahead of time.
 
 ## Installation
 
@@ -13,7 +13,7 @@ pnpm add @lakshmanshankar/pagwrite-astro
 After installation, run it through your package manager:
 
 ```bash
-pnpm pagewrite-content --help
+pnpm pagewrite-astro --help
 ```
 
 ## Authentication
@@ -21,19 +21,19 @@ pnpm pagewrite-content --help
 Pass the build token directly using the `--token` option:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx
+pagewrite-astro fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx
 ```
 
 ## Usage
 
 ```bash
-pagewrite-content fetch --site-id <siteId> [options]
+pagewrite-astro fetch --site-id <siteId> [options]
 ```
 
 The `fetch` command stages the site content by fetching the static file tree and paginated file documents, adding `title` and `slug` frontmatter, and writing `.mdx` files to the output directory.
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --out src/content/docs
+pagewrite-astro fetch --site-id your-site-id --out src/content/docs
 ```
 
 ## Options
@@ -55,26 +55,26 @@ pagewrite-content fetch --site-id your-site-id --out src/content/docs
 Fetch content into the default Astro content directory:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id
+pagewrite-astro fetch --site-id your-site-id
 ```
 
 Fetch into a custom collection directory:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --out src/content/blog
+pagewrite-astro fetch --site-id your-site-id --out src/content/blog
 ```
 
 Clean the target directory before writing fresh content:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --out src/content/docs --clean
+pagewrite-astro fetch --site-id your-site-id --out src/content/docs --clean
 ```
 
 
 Validate remote content without keeping files on disk:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --dry-run
+pagewrite-astro fetch --site-id your-site-id --dry-run
 ```
 
 ## CI Integration
@@ -84,7 +84,7 @@ Run the CLI before your framework build:
 ```json
 {
   "scripts": {
-    "content:fetch": "pagewrite-content fetch --site-id $PAGEWRITE_SITE_ID --token $PAGEWRITE_BUILD_TOKEN --out src/content/docs --clean",
+    "content:fetch": "pagewrite-astro fetch --site-id $PAGEWRITE_SITE_ID --token $PAGEWRITE_BUILD_TOKEN --out src/content/docs --clean",
     "prebuild": "pnpm content:fetch",
     "build": "astro build"
   }

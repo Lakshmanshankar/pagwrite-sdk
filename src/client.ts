@@ -7,6 +7,7 @@ import type {
   SitePages,
   StagedSiteContent,
   StaticTreeChild,
+  SiteSchema,
 } from "./types.js";
 import {
   flattenFileNodes,
@@ -14,17 +15,18 @@ import {
   safeRelativePath,
   toSegment,
   toSlug,
-  upsertFrontmatter,
 } from "./utils.js";
+import { buildMdxWithSchema } from "./frontmatter.js";
 
-export const STATIC_FILE_TREE_URL = "https://getstaticfiletree-hhjkelprqq-uc.a.run.app";
-export const PAGINATED_FILE_DOCUMENTS_URL =
-  "https://us-central1-sanity-freeform.cloudfunctions.net/getPaginatedFileDocuments";
+export const API_BASE_URL = "https://us-central1-sanity-freeform.cloudfunctions.net";
+export const STATIC_FILE_TREE_ENDPOINT = `${API_BASE_URL}/getStaticFileTree`;
+export const PAGINATED_FILE_DOCUMENTS_ENDPOINT = `${API_BASE_URL}/getPaginatedFileDocuments`;
+export const SITE_SCHEMAS_ENDPOINT = `${API_BASE_URL}/getSiteSchemas`;
 export const DEFAULT_PAGE_SIZE = 100;
 
 export interface FetchSiteContentOptions {
   fetchImpl?: typeof fetch;
-  logger?: Pick<RemoteMdxLogger, "warn">;
+  logger?: Pick<RemoteMdxLogger, "info" | "warn" | "error">;
   pageSize?: number;
   timeoutMs?: number;
 }
@@ -68,13 +70,33 @@ async function fetchJson<T>(
   }
 }
 
+export async function fetchSiteSchemas(
+  siteId: string,
+  token: string,
+  options: FetchSiteContentOptions = {},
+): Promise<Map<string, SiteSchema>> {
+  const responseData = await fetchJson<{ schemas?: SiteSchema[] }>(
+    SITE_SCHEMAS_ENDPOINT,
+    token,
+    { siteId },
+    "Failed to fetch site schemas",
+    options,
+  );
+
+  const schemas = new Map<string, SiteSchema>();
+  for (const schema of responseData.schemas ?? []) {
+    schemas.set(schema.id, schema);
+  }
+  return schemas;
+}
+
 export async function fetchStaticFileTree(
   siteId: string,
   token: string,
   options: FetchSiteContentOptions = {},
 ): Promise<SitePages> {
   const responseData = await fetchJson<{ root?: StaticTreeChild }>(
-    STATIC_FILE_TREE_URL,
+    STATIC_FILE_TREE_ENDPOINT,
     token,
     { siteId },
     "Failed to fetch static file tree",
@@ -86,7 +108,7 @@ export async function fetchStaticFileTree(
     throw new Error("Invalid file tree response: root folder is missing");
   }
 
-  const walkFolder = (children: StaticTreeChild[], parentPath: string): PageTreeNode[] =>
+  const walkFolder = (children: StaticTreeChild[], parentPath: string, parentFolderId?: string): PageTreeNode[] =>
     children.map((child) => {
       const title = typeof child.title === "string" && child.title.trim().length > 0 ? child.title : child.id;
       const childPath = parentPath ? `${parentPath}/${toSegment(title, child.id)}` : toSegment(title, child.id);
@@ -99,7 +121,8 @@ export async function fetchStaticFileTree(
           path: childPath,
           databaseType: child.databaseType,
           lang: child.lang,
-          children: walkFolder(child.children ?? [], childPath),
+          schemaId: child.schemaId,
+          children: walkFolder(child.children ?? [], childPath, child.id),
         };
       }
 
@@ -109,13 +132,15 @@ export async function fetchStaticFileTree(
         title,
         path: childPath,
         storageFile: "",
+        parentFolderId,
       };
     });
 
   return {
     siteId,
     rootFolderId: root.id,
-    pages: walkFolder(root.children ?? [], ""),
+    rootSchemaId: root.schemaId,
+    pages: walkFolder(root.children ?? [], "", root.id),
     tags: {},
   };
 }
@@ -133,7 +158,7 @@ export async function fetchAllFileDocuments(
       documents?: FileDocument[];
       nextPageToken?: string | null;
     }>(
-      PAGINATED_FILE_DOCUMENTS_URL,
+      PAGINATED_FILE_DOCUMENTS_ENDPOINT,
       token,
       {
         siteId,
@@ -143,14 +168,12 @@ export async function fetchAllFileDocuments(
       "Failed to fetch paginated file documents",
       options,
     );
-
     for (const document of responseData.documents ?? []) {
       documents.set(document.id, document);
     }
 
     pageToken = responseData.nextPageToken ?? null;
   } while (pageToken);
-
   return documents;
 }
 
@@ -160,14 +183,35 @@ export async function stageSiteContent(
   contentDir: string,
   options: FetchSiteContentOptions = {},
 ): Promise<StagedSiteContent> {
-  const [sitePages, documents] = await Promise.all([
+  const [sitePages, documents, schemas] = await Promise.all([
     fetchStaticFileTree(siteId, token, options),
     fetchAllFileDocuments(siteId, token, options),
+    fetchSiteSchemas(siteId, token, options),
   ]);
+
   const fileNodes = flattenFileNodes(sitePages.pages);
 
   await ensureDir(contentDir);
 
+  const folderSchemaMap = new Map<string, string>();
+  if (sitePages.rootSchemaId) {
+    folderSchemaMap.set(sitePages.rootFolderId, sitePages.rootSchemaId);
+  }
+
+  const mapSchemas = (nodes: PageTreeNode[], inheritedSchemaId?: string) => {
+    for (const node of nodes) {
+      if (node.type === "folder") {
+        const activeSchemaId = node.schemaId ?? inheritedSchemaId;
+        if (activeSchemaId) {
+          folderSchemaMap.set(node.id, activeSchemaId);
+        }
+        mapSchemas(node.children, activeSchemaId);
+      }
+    }
+  };
+  mapSchemas(sitePages.pages, sitePages.rootSchemaId);
+
+  let skippedCount = 0;
   const files: StagedSiteContent["files"] = [];
   for (const fileNode of fileNodes) {
     const normalizedPath = safeRelativePath(fileNode.path);
@@ -177,10 +221,24 @@ export async function stageSiteContent(
 
     if (!document) {
       options.logger?.warn(`Document not found for file node: ${fileNode.id} (${fileNode.title})`);
+      continue;
+    }
+
+    if (document.metadata?.pageStatus !== "published") {
+      skippedCount++;
+      continue;
     }
 
     const slug = toSlug(normalizedPath);
-    const contentWithFrontmatter = upsertFrontmatter(document?.mdxString ?? "", fileNode.title, slug, fileNode.id);
+    const schemaId = fileNode.parentFolderId ? folderSchemaMap.get(fileNode.parentFolderId) : undefined;
+    const schema = schemaId ? schemas.get(schemaId) : undefined;
+
+    const contentWithFrontmatter = buildMdxWithSchema(
+      document,
+      schema,
+      fileNode.title,
+      slug
+    );
 
     await ensureDir(path.dirname(absolutePath));
     await writeTextFile(absolutePath, contentWithFrontmatter);
@@ -190,6 +248,10 @@ export async function stageSiteContent(
       relPath,
       absolutePath,
     });
+  }
+
+  if (skippedCount > 0) {
+    options.logger?.info?.(`Skipped ${skippedCount} non-published page(s).`);
   }
 
   const pagemap = generatePageMap(sitePages.pages);

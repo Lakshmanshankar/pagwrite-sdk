@@ -88,7 +88,7 @@ pagewriteAstro({
 You can fetch content outside the Astro build by running the CLI in a predeploy step, CI job, or local verification command:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx --out src/content/docs
+pagewrite-astro fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx --out src/content/docs
 ```
 
 For CI, wire it before your framework build:
@@ -96,7 +96,7 @@ For CI, wire it before your framework build:
 ```json
 {
   "scripts": {
-    "content:fetch": "pagewrite-content fetch --site-id $PAGEWRITE_SITE_ID --token $PAGEWRITE_BUILD_TOKEN --out src/content/docs --clean",
+    "content:fetch": "pagewrite-astro fetch --site-id $PAGEWRITE_SITE_ID --token $PAGEWRITE_BUILD_TOKEN --out src/content/docs --clean",
     "prebuild": "pnpm content:fetch",
     "build": "astro build"
   }
@@ -106,7 +106,7 @@ For CI, wire it before your framework build:
 To verify the remote content without keeping files on disk, use dry run:
 
 ```bash
-pagewrite-content fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx --dry-run
+pagewrite-astro fetch --site-id your-site-id --token rmx_live_xxxxxxxxxxxx --dry-run
 ```
 
 CLI options mirror the integration defaults: `--token`, `--clean`, `--page-size`, and `--timeout-ms` are available.

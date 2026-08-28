@@ -1,5 +1,5 @@
 {
-  "name": "@lakshmanshankar/pagwrite-astro",
+  "name": "pagewrite-astro",
   "version": "0.1.7",
   "description": "Astro integration for fetching Pagewrite MDX content at build time.",
   "type": "module",
@@ -45,6 +45,9 @@
     "node": ">=18.17.0"
   },
   "bin": {
-    "pagewrite-content": "./dist/cli.js"
+    "pagewrite-astro": "./dist/cli.js"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
   }
 }
