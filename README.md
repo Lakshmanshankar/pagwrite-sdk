@@ -1,4 +1,4 @@
-# @lakshmanshankar/pagwrite-astro
+# pagewrite-astro
 
 Astro integration for fetching Pagewrite CMS content at build time and writing it as MDX files into your Astro content directory.
 
@@ -9,7 +9,7 @@ This package is currently focused on the Astro fetch/write integration. The lowe
 ```text
 Pagewrite CMS                  User's Astro project
 -------------                  --------------------
-siteId, token           --->    @lakshmanshankar/pagwrite-astro config
+siteId, token           --->    pagewrite-astro config
                                   |
                                   v
                                astro build
@@ -25,7 +25,7 @@ siteId, token           --->    @lakshmanshankar/pagwrite-astro config
 ## Installation
 
 ```bash
-pnpm add @lakshmanshankar/pagwrite-astro
+pnpm add pagewrite-astro
 ```
 
 ## Setup
@@ -35,7 +35,7 @@ Configure the integration before content-related integrations in `astro.config.m
 ```js
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
-import pagewriteAstro from "@lakshmanshankar/pagwrite-astro";
+import pagewriteAstro from "pagewrite-astro";
 
 import { loadEnv } from "vite";
 const env = loadEnv(process.env.NODE_ENV!, process.cwd(), "");
@@ -122,7 +122,7 @@ import {
   fetchStaticFileTree,
   fetchAllFileDocuments,
   stageSiteContent,
-} from "@lakshmanshankar/pagwrite-astro";
+} from "pagewrite-astro";
 
 await stageSiteContent("your-site-id", "rmx_live_xxxxxxxxxxxx", "./content/docs");
 ```
@@ -131,7 +131,7 @@ await stageSiteContent("your-site-id", "rmx_live_xxxxxxxxxxxx", "./content/docs"
 
 ## Publishing
 
-Package publishing is handled by GitHub Actions. Configure an `NPM_TOKEN` repository secret with permission to publish `@lakshmanshankar/pagwrite-astro`, then publish a GitHub release to run the npm publish workflow.
+Package publishing is handled by GitHub Actions. Configure an `NPM_TOKEN` repository secret with permission to publish `pagewrite-astro`, then publish a GitHub release to run the npm publish workflow.
 
 The workflow installs dependencies with pnpm, runs typecheck, tests, and build, then publishes to the npm registry with provenance enabled. It can also be started manually from the Actions tab with `workflow_dispatch`.
 
