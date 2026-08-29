@@ -1,6 +1,6 @@
 {
   "name": "pagewrite-astro",
-  "version": "0.1.7",
+  "version": "0.1.10",
   "description": "Astro integration for fetching Pagewrite MDX content at build time.",
   "type": "module",
   "packageManager": "pnpm@10.15.1",
@@ -49,5 +49,9 @@
   },
   "dependencies": {
     "yaml": "^2.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lakshmanshankar/pagewrite-sdk"
   }
 }
