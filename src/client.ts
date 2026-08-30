@@ -229,6 +229,13 @@ export async function stageSiteContent(
       continue;
     }
 
+    if (document.metadata?.slug && typeof document.metadata.slug === "string") {
+      const dir = path.posix.dirname(normalizedPath);
+      if (dir !== ".") {
+        document.metadata.slug = `${dir}/${document.metadata.slug}`;
+      }
+    }
+
     const slug = toSlug(normalizedPath);
     const schemaId = fileNode.parentFolderId ? folderSchemaMap.get(fileNode.parentFolderId) : undefined;
     const schema = schemaId ? schemas.get(schemaId) : undefined;
@@ -253,8 +260,7 @@ export async function stageSiteContent(
   if (skippedCount > 0) {
     options.logger?.info?.(`Skipped ${skippedCount} non-published page(s).`);
   }
-
-  const pagemap = generatePageMap(sitePages.pages);
+  const pagemap = generatePageMap(sitePages.pages, documents);
   const pagemapPath = path.join(contentDir, "pagemap.json");
   await writeTextFile(pagemapPath, JSON.stringify(pagemap, null, 2));
 
