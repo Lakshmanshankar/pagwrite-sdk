@@ -1,15 +1,26 @@
 import path from "node:path";
-import type { PageMapNode, PageTreeFileNode, PageTreeNode } from "./types.js";
+import type { PageMapNode, PageTreeFileNode, PageTreeNode, FileDocument } from "./types.js";
 
-export function generatePageMap(nodes: PageTreeNode[]): PageMapNode[] {
+export function generatePageMap(
+  nodes: PageTreeNode[],
+  documents?: Map<string, FileDocument>
+): PageMapNode[] {
   return nodes.map((node) => {
-    const slug = toSlug(safeRelativePath(node.path));
+    let slug = toSlug(safeRelativePath(node.path));
+
+    if (node.type === "file" && documents) {
+      const doc = documents.get(node.id);
+      if (doc?.metadata?.slug && typeof doc.metadata.slug === "string") {
+        slug = doc.metadata.slug;
+      }
+    }
+
     if (node.type === "folder") {
       return {
         id: node.id,
         title: node.title,
         slug,
-        children: generatePageMap(node.children),
+        children: generatePageMap(node.children, documents),
       };
     }
     return {
